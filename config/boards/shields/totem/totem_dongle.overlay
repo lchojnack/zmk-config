@@ -15,3 +15,25 @@
          , <&xiao_d 4 GPIO_ACTIVE_HIGH>
          ;
  };
+
+ / {
+     chosen {
+         zmk,battery-reporting = &battery_reporting;
+     };
+
+     battery_reporting: battery_reporting {
+         compatible = "zmk,battery-reporting";
+
+         dongle {
+             hidden;
+         };
+         left {
+             display-name = "Left";
+             cpf = <0x010D>;
+         };
+         right {
+             display-name = "Right";
+             cpf = <0x010E>;
+         };
+     };
+ };
