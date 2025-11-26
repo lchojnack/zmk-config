@@ -2,10 +2,12 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
+    - name: genteure
+      url-base: https://github.com/Genteure
   projects:
     - name: zmk
-      remote: zmkfirmware
-      revision: main
+      remote: genteure
+      revision: feat/battery-reporting
       import: app/west.yml
   self:
     path: config
