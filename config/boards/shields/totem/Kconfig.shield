@@ -12,3 +12,4 @@ config SHIELD_TOTEM_DONGLE
 
 config SHIELD_TOTEM_TRACKBALL
     def_bool $(shields_list_contains,totem_trackball)
+

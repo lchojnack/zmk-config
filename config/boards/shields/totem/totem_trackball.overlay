@@ -160,4 +160,8 @@
 // End of Configuration
 // ============================================================================
 
+#include "totem_esb.dtsi"
+
+/ { chosen { zmk,esb-self = &esb_trackball; }; };
+
 /* More about input processors: https://zmk.dev/docs/keymaps/input-processors#input-processors-overview */

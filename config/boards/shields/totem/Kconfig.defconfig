@@ -5,7 +5,7 @@ if SHIELD_TOTEM_DONGLE
 
 config ZMK_KEYBOARD_NAME
     default "TOTEM"
-    
+
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
 
@@ -17,9 +17,6 @@ endif
 if SHIELD_TOTEM_LEFT || SHIELD_TOTEM_RIGHT || SHIELD_TOTEM_DONGLE || SHIELD_TOTEM_TRACKBALL
 
 config ZMK_SPLIT
-    default y
-
-config ZMK_BLE
     default y
 
 endif

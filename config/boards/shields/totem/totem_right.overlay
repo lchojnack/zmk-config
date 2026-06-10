@@ -25,3 +25,7 @@
     status = "disabled";
 };
 
+#include "totem_esb.dtsi"
+
+/ { chosen { zmk,esb-self = &esb_right; }; };
+

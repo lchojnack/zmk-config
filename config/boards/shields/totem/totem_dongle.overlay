@@ -5,6 +5,7 @@
  */
 
 #include "totem.dtsi"
+#include "totem_esb.dtsi"
 #include <input/processors/scaler.dtsi>
 #include <input/processors/temp_layer.dtsi>
 #include <input/processors.dtsi>

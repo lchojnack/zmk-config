@@ -1,0 +1,26 @@
+/ {
+    esb_link: esb_link {
+        compatible = "zmk,split-esb";
+        base-address = [E7 E7 E7 E7];
+        hop-channels = [4D];
+        idle-keepalive-ms = <16>;
+        use-fast-ramp-up;
+        peripherals {
+            esb_left: peripheral_left {
+                pipe = <0>;
+                prefix = <0xE7>;
+                weight = <1>;
+            };
+            esb_right: peripheral_right {
+                pipe = <1>;
+                prefix = <0xC3>;
+                weight = <1>;
+            };
+            esb_trackball: peripheral_trackball {
+                pipe = <2>;
+                prefix = <0xC4>;
+                weight = <1>;
+            };
+        };
+    };
+};
