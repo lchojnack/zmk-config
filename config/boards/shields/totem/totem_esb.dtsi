@@ -1,8 +1,12 @@
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
 / {
     esb_link: esb_link {
         compatible = "zmk,split-esb";
         base-address = [E7 E7 E7 E7];
-        hop-channels = [4D];
+        hop-channels = [18 19 31 32 4A 4B 4C 4D 4E 4F 50];
+        lossy-codes = <INPUT_EV_REL INPUT_REL_X>, <INPUT_EV_REL INPUT_REL_Y>;
+        tx-power-dbm = <8>;
         idle-keepalive-ms = <16>;
         use-fast-ramp-up;
         peripherals {

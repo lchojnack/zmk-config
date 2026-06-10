@@ -61,6 +61,7 @@
 
         // Performance mode: force-high-performance
         // Note: force-awake can cause cursor warping/jumping - not recommended
+        force-awake;
         force-high-performance;
     };
 };
