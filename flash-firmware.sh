@@ -1,64 +1,40 @@
 #!/bin/bash
 
 # Script to flash firmware to XIAO-SENSE device
-# Usage: ./flash-firmware.sh [dongle|left|right|reset]
+# Usage: ./flash-firmware.sh <build-folder>
 #
 # Examples:
-#   ./flash-firmware.sh dongle    # Flash dongle
-#   ./flash-firmware.sh left      # Flash left keyboard half
-#   ./flash-firmware.sh right     # Flash right keyboard half
-#   ./flash-firmware.sh trackball # Flash trackball
-#   ./flash-firmware.sh reset     # Flash settings reset
+#   ./flash-firmware.sh xiao_ble_zmk_totem_dongle    # Flash dongle
+#   ./flash-firmware.sh xiao_ble_zmk_totem_left      # Flash left keyboard half
+#   ./flash-firmware.sh xiao_ble_zmk_totem_right     # Flash right keyboard half
+#   ./flash-firmware.sh xiao_ble_zmk_totem_trackball # Flash trackball
+#   ./flash-firmware.sh xiao_ble_zmk_settings_reset  # Flash settings reset
+#
+# Tab completion: source completions/flash-firmware.bash
 
 set -e
 
-OUTPUT_DIR="firmware"
-TARGET="${1:-dongle}"
+BUILD_FOLDER="${1:-}"
 
-# Determine firmware file to flash
-case "$TARGET" in
-    dongle)
-        echo "Looking for totem_dongle firmware..."
-        FIRMWARE=$(find "$OUTPUT_DIR" -name "*totem_dongle*.uf2" -type f | head -n 1)
-        DEVICE_NAME="dongle"
-        ;;
-    left)
-        echo "Looking for totem_left firmware..."
-        FIRMWARE=$(find "$OUTPUT_DIR" -name "*totem_left*.uf2" -type f | head -n 1)
-        DEVICE_NAME="left keyboard half"
-        ;;
-    right)
-        echo "Looking for totem_right firmware..."
-        FIRMWARE=$(find "$OUTPUT_DIR" -name "*totem_right*.uf2" -type f | head -n 1)
-        DEVICE_NAME="right keyboard half"
-        ;;
-    trackball)
-        echo "Looking for totem_trackball firmware..."
-        FIRMWARE=$(find "$OUTPUT_DIR" -name "*totem_trackball*.uf2" -type f | head -n 1)
-        DEVICE_NAME="trackball"
-        ;;
-    reset)
-        echo "Looking for settings_reset firmware..."
-        FIRMWARE=$(find "$OUTPUT_DIR" -name "*settings_reset*.uf2" -type f | head -n 1)
-        DEVICE_NAME="device (settings reset)"
-        ;;
-    *)
-        echo "Error: Unknown target '$TARGET'"
-        echo "Usage: ./flash-firmware.sh [dongle|left|right|trackball|reset]"
-        exit 1
-        ;;
-esac
+if [ -z "$BUILD_FOLDER" ]; then
+    echo "Error: No build folder specified"
+    echo "Usage: ./flash-firmware.sh <build-folder>"
+    echo "Example: ./flash-firmware.sh xiao_ble_zmk_totem_dongle"
+    exit 1
+fi
 
-if [ -z "$FIRMWARE" ]; then
-    echo "Error: Firmware for $DEVICE_NAME not found in $OUTPUT_DIR/"
-    echo "Run ./download-firmware.sh first to download firmware"
+FIRMWARE="./build/${BUILD_FOLDER}/zephyr/zmk.uf2"
+
+if [ ! -f "$FIRMWARE" ]; then
+    echo "Error: Firmware file not found: $FIRMWARE"
+    echo "Build the firmware first with: ./build_local.sh build ${BUILD_FOLDER}"
     exit 1
 fi
 
 echo "Found: $FIRMWARE"
 echo ""
 echo "Waiting for XIAO-SENSE device (10s timeout)..."
-echo "Put the $DEVICE_NAME in bootloader mode (double-tap reset button)"
+echo "Put the device in bootloader mode (double-tap reset button)"
 
 # Wait for device block to appear, then auto-mount if needed
 MOUNT_POINT=""
@@ -111,16 +87,16 @@ fi
 
 if [ -z "$MOUNT_POINT" ]; then
     echo "Error: XIAO-SENSE device not found"
-    echo "Please put the $DEVICE_NAME in bootloader mode (double-tap reset button)"
+    echo "Please put the device in bootloader mode (double-tap reset button)"
     exit 1
 fi
 
 echo "Found device at: $MOUNT_POINT"
-echo "Copying firmware to $DEVICE_NAME..."
+echo "Copying firmware..."
 
 cp "$FIRMWARE" "$MOUNT_POINT/"
 sync
 
 echo ""
-echo "✓ Firmware flashed successfully to $DEVICE_NAME!"
+echo "✓ Firmware flashed successfully!"
 echo "Device will reboot automatically"

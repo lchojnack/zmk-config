@@ -1,1 +1,23 @@
 firmware/
+# Build artifacts
+build/
+artifacts/
+
+# ZMK
+zephyr/
+!zephyr/module.yml
+
+# West managed directories
+.west/
+modules/
+tools/
+
+# West projects from config/west.yml
+zmk/
+zmk-rgbled-widget/
+zmk-pmw3610-driver/
+zmk-input-processor-report-rate-limit/
+zmk-pointing-acceleration-alpha/
+zmk-feature-split-esb/
+nrf/
+nrfxlib/
