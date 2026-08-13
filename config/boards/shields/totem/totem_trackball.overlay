@@ -8,7 +8,7 @@
 // ----------------------------------------------------------------------------
 
 // #include <input/processors.dtsi>
-// #include <input/processors/report_rate_limit.dtsi>
+#include <input/processors/report_rate_limit.dtsi>
 // #include <dt-bindings/zmk/input_transform.h>
 // #include <behaviors/input_gestures_accel.dtsi>
 
@@ -53,7 +53,11 @@
         reg = <0>;
         spi-max-frequency = <2000000>;  // 2MHz SPI clock
         irq-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; // MOT P1.15 (Brown wire)
-        cpi = <800>;                    // 800 counts per inch
+        cpi = <1600>;                   // 1600 counts per inch - real resolution for
+                                        // the 3840x2160 27" panel (163 PPI, unscaled
+                                        // pointer space). Driver allows 200-3200 in
+                                        // steps of 200. NOTE: sensor-dpi in the dongle
+                                        // overlay must stay at 800 - see comment there.
         evt-type = <INPUT_EV_REL>;
         x-input-code = <INPUT_REL_X>;
         y-input-code = <INPUT_REL_Y>;
@@ -74,6 +78,12 @@
             compatible = "zmk,input-split";
             reg = <1>;  // Unique ID for the trackball
             device = <&trackball>;
+
+            // Cap reports at 125 Hz (8ms) before they hit the BLE link to the
+            // dongle. X/Y deltas are accumulated, not dropped, so no motion is
+            // lost - unlike the queue overflow you get when the sensor reports
+            // faster than the connection interval allows.
+            input-processors = <&zip_report_rate_limit 8>;
         };
     };
 };

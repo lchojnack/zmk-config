@@ -46,7 +46,9 @@
     behaviors {
         // Timeless homerow mods for left hand
         // require-prior-idle-ms = 10500 / WPM (adjust based on typing speed)
-        // Same-hand modifiers enabled (no hold-trigger restrictions)
+        // Opposite hand trigger only, mirroring hmr: a left-hand key pressed
+        // while a left-hand mod is held always resolves as a tap. Without this,
+        // same-hand rolls like "as" or "ad" turn A into LGUI.
 
         hml: homerow_mods_left {
             compatible = "zmk,behavior-hold-tap";
@@ -54,9 +56,15 @@
             #binding-cells = <2>;
             flavor = "balanced";
             tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
+            // Tap, then re-press within this window, to get a held tap that the
+            // OS auto-repeats: "a" then hold "a" -> aaaaaaaa. A first hold is
+            // always the modifier, so this is the only way to repeat these keys.
+            quick-tap-ms = <250>;
             require-prior-idle-ms = <150>;
             bindings = <&kp>, <&kp>;
+
+            hold-trigger-key-positions = <KEYS_R THUMBS>;
+            hold-trigger-on-release;
         };
 
         // Timeless homerow mods for right hand
@@ -68,7 +76,7 @@
             #binding-cells = <2>;
             flavor = "balanced";
             tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
+            quick-tap-ms = <250>;   // same tap-then-hold repeat window as hml
             require-prior-idle-ms = <150>;
             bindings = <&kp>, <&kp>;
 
@@ -164,20 +172,20 @@
         button_layer {
             display-name = "Button";
             bindings = <
-        &mkp MB5  &mkp MB4  &kp LS(DEL)  &kp LC(INS)  &kp LS(INS)    &kp LS(INS)  &kp LC(INS)  &kp LS(DEL)  &mkp MB4  &mkp MB5
-        &kp LGUI  &kp LALT  &kp LCTRL    &kp LSHFT    &mo 8          &mo 8        &kp LSHFT    &kp LCTRL    &kp LALT  &kp LGUI
-&trans  &mkp MB5  &mkp MB4  &kp LS(DEL)  &kp LC(INS)  &kp LS(INS)    &kp LS(INS)  &kp LC(INS)  &kp LS(DEL)  &mkp MB4  &mkp MB5  &trans
-                            &mkp MCLK    &mkp LCLK    &mkp RCLK      &mkp RCLK    &mkp LCLK    &mkp MCLK
+        &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans
+        &trans  &trans  &trans     &trans     &mo 8      &mo 8      &trans     &trans     &trans  &trans
+&trans  &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans  &trans
+                        &mkp MCLK  &mkp LCLK  &mkp RCLK  &mkp LCLK  &mkp RCLK  &mkp MCLK
             >;
         };
 
         scroll_layer {
             display-name = "Scroll";
             bindings = <
-        &mkp MB5  &mkp MB4  &kp LS(DEL)  &kp LC(INS)  &kp LS(INS)    &kp LS(INS)  &kp LC(INS)  &kp LS(DEL)  &mkp MB4  &mkp MB5
-        &kp LGUI  &kp LALT  &kp LCTRL    &kp LSHFT    &mo 8          &mo 8        &kp LSHFT    &kp LCTRL    &kp LALT  &kp LGUI
-&trans  &mkp MB5  &mkp MB4  &kp LS(DEL)  &kp LC(INS)  &kp LS(INS)    &kp LS(INS)  &kp LC(INS)  &kp LS(DEL)  &mkp MB4  &mkp MB5  &trans
-                            &mkp MCLK    &mkp LCLK    &mkp RCLK      &mkp RCLK    &mkp LCLK    &mkp MCLK
+        &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans
+        &trans  &trans  &trans     &trans     &mo 8      &mo 8      &trans     &trans     &trans  &trans
+&trans  &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans  &trans
+                        &mkp MCLK  &mkp LCLK  &mkp RCLK  &mkp LCLK  &mkp RCLK  &mkp MCLK
             >;
         };
     };

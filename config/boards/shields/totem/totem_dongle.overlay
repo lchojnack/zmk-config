@@ -8,6 +8,8 @@
 #include <input/processors/scaler.dtsi>
 #include <input/processors/temp_layer.dtsi>
 #include <input/processors.dtsi>
+#include <behaviors/input_gestures_accel.dtsi>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
 
  &kscan0 {
      col-gpios
@@ -18,6 +20,60 @@
          , <&xiao_d 4 GPIO_ACTIVE_HIGH>
          ;
  };
+
+/* Pointer acceleration - velocity based, tuned for a 1600 CPI PMW3610 driving a
+ * single 3840x2160 27" display (163 PPI) on X11/i3, where the pointer space is
+ * unscaled: 1 count = 1 physical pixel.
+ *
+ * Resulting gearing, in pixels per inch of ball travel:
+ *   slow (min-factor)  0.5 x 1600 =  800 px/in  - fine positioning
+ *   flick (max-factor) 2.8 x 1600 = 4480 px/in  - 3840 px wide screen crossed in
+ *                                                0.86", the 4406 px diagonal in 0.98"
+ *                                                i.e. one sweep of the 34mm ball
+ *
+ * Must be declared before the input-listener that references it.
+ */
+&pointer_accel {
+    input-type = <INPUT_EV_REL>;
+    codes = <INPUT_REL_X INPUT_REL_Y>;
+
+    sensitivity = <1000>;         // 1.0x base
+    min-factor = <500>;           // 0.5x below the threshold, for fine positioning
+    max-factor = <2800>;          // 2.8x once at speed-max (ceiling is 5000)
+    acceleration-exponent = <2>;  // mild exponential ramp between the two
+    speed-threshold = <1400>;     // counts/sec; ~0.9 in/s of ball travel at 1600 CPI
+    speed-max = <5600>;           // ~3.5 in/s - both doubled with the CPI change,
+                                  // since counts/sec scale with sensor resolution
+    y-boost = <1000>;             // 1.0x = same as X
+
+    /* Deliberately NOT 1600. The driver normalizes as
+     *   effective = sensitivity * 800 / sensor-dpi
+     * (STANDARD_DPI_REFERENCE = 800, input_processor_accel_calc_common.c:69-87),
+     * so declaring the real 1600 would halve sensitivity and cancel the CPI
+     * increase exactly. Treat this as the normalization reference, not hardware
+     * truth. The honest alternative is sensor-dpi = <1600> with
+     * sensitivity = <2000>, which computes to the same 1.0x but leaves no
+     * headroom, as 2000 is the sensitivity ceiling.
+     */
+    sensor-dpi = <800>;
+};
+
+/* Auto mouse layer guards.
+ *
+ * require-prior-idle-ms: ball movement within this long after a keystroke will
+ * not activate the layer, so brushing the ball mid-word no longer hijacks the
+ * keys. Raise toward 250 if it still triggers while typing.
+ *
+ * excluded-positions: positions listed here KEEP the layer alive when pressed;
+ * every other key drops it instantly. Listed are the six thumb clicks (32-37)
+ * and the two &mo 8 scroll keys (14, 15) - i.e. exactly the bindings that exist
+ * on the button layer. So typing dismisses the layer immediately, which is what
+ * lets the 1000ms timeout come down to 600.
+ */
+&zip_temp_layer {
+    require-prior-idle-ms = <150>;
+    excluded-positions = <14 15 32 33 34 35 36 37>;
+};
 
  / {
     split_inputs {
@@ -34,14 +90,17 @@
     trackball_listener {
         compatible = "zmk,input-listener";
         device = <&trackball_split>;
-        // Optional: Add input processors (e.g., acceleration, rate limiting)
-        // input-processors = <&pointer_accel>;/* 1x sensitivity + auto mouse layer */
-        input-processors = <&zip_xy_scaler 1 1>, <&zip_temp_layer 7 1000>;
+        // Acceleration + auto mouse layer. The old <&zip_xy_scaler 1 1> was a
+        // 1:1 no-op and is now redundant.
+        input-processors = <&pointer_accel>, <&zip_temp_layer 7 600>;
         
-        /* Layer 8: Scroll mode - reduced sensitivity */
+        /* Layer 8: Scroll mode - reduced sensitivity.
+         * The divisor works on raw sensor counts, so it was doubled from 16 to 32
+         * alongside the 800 -> 1600 CPI change to keep scrolling at its old speed.
+         */
         scroll {
             layers = <8>;
-            input-processors = <&zip_xy_scaler 1 16>, <&zip_xy_to_scroll_mapper>;
+            input-processors = <&zip_xy_scaler 1 32>, <&zip_xy_to_scroll_mapper>;
         };
     };
 };
