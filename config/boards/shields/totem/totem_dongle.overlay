@@ -10,6 +10,7 @@
 #include <input/processors.dtsi>
 #include <behaviors/input_gestures_accel.dtsi>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <dt-bindings/zmk/battery_reporting.h>
 
  &kscan0 {
      col-gpios
@@ -56,6 +57,48 @@
      * headroom, as 2000 is the sensitivity ceiling.
      */
     sensor-dpi = <800>;
+};
+
+/* Battery reporting parts, one child per keyboard part, in order: central first,
+ * then peripherals by split index. The count must equal 1 + PERIPHERALS (=4) or
+ * the build asserts.
+ *
+ * The dongle child is `hidden` on purpose: the lowest-charge aggregation takes
+ * the central's level unconditionally, while peripheral zeros are skipped
+ * (battery_reporting.c:251-266). This dongle runs on USB with no cell attached,
+ * so its phantom ADC reading would otherwise pin the reported minimum.
+ *
+ * Peripheral slots are assigned in split connection order, so the left/right/
+ * trackball names are best-effort - swap them if the labels come out crossed.
+ */
+/ {
+    chosen {
+        zmk,battery-reporting = &battery_reporting;
+    };
+
+    battery_reporting: battery_reporting {
+        compatible = "zmk,battery-reporting";
+
+        dongle {
+            display-name = "Dongle";
+            hidden;
+        };
+
+        left {
+            display-name = "Left";
+            cpf = <ZMK_CPF_DESC_LEFT>;
+        };
+
+        trackball {
+            display-name = "Trackball";
+            cpf = <ZMK_CPF_DESC_AUXILIARY>;
+        };
+
+        right {
+            display-name = "Right";
+            cpf = <ZMK_CPF_DESC_RIGHT>;
+        };
+    };
 };
 
 /* Auto mouse layer guards.

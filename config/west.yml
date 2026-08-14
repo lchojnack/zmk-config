@@ -24,6 +24,9 @@ manifest:
     - name: zmk-input-processor-report-rate-limit
       remote: badjeff
       revision: main
+    - name: zmk-behavior-battery-percentage-printer
+      remote: badjeff
+      revision: main
     - name: zmk-pointing-acceleration-alpha
       remote: nuovotaka
       revision: main

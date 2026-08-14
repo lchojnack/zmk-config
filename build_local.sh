@@ -350,6 +350,8 @@ init() {
   $COMMAND west init -l config
   $COMMAND west update
   $COMMAND west patch -sm zmk-feature-split-esb apply || true
+  # Local patches from config/zephyr/patches.yml (ZMK PRs not yet merged upstream)
+  $COMMAND west patch apply || true
   log_info "Initialization complete."
 }
 
@@ -358,6 +360,8 @@ update() {
   log_info "Updating repository..."
   $COMMAND west update
   $COMMAND west patch -sm zmk-feature-split-esb apply || true
+  # Local patches from config/zephyr/patches.yml (ZMK PRs not yet merged upstream)
+  $COMMAND west patch apply || true
   log_info "Update complete."
 }
 

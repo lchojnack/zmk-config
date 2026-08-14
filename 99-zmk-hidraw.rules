@@ -1,0 +1,8 @@
+# Give the logged-in user access to the ZMK dongle's hidraw node, so
+# ./zmk-battery.py can read the per-part battery reports without root.
+#
+#   sudo cp 99-zmk-hidraw.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#
+# 1d50:615e is ZMK's USB VID:PID (shows up as "OpenMoko, Inc. TOTEM" in lsusb).
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="615e", TAG+="uaccess"

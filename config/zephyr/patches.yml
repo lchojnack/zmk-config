@@ -1,0 +1,22 @@
+patches:
+  - path: zmk-3458-battery-reporting.patch
+    sha256sum: 870b37b7585bc587fc7fa2c0970ae8b3c6691306286e6c5fc9310c33c2c22214
+    module: zmk
+    author: Lucas Zampieri
+    email: lcasmz54@gmail.com
+    date: 2026-08-01
+    upstreamable: true
+    merge-pr: https://github.com/zmkfirmware/zmk/pull/3458
+    merge-status: false
+    comments: >
+      Squash of the four commits on ZMK PR #3458 (per-part HID battery reporting
+      and charge status), which supersedes PR #2938 - its first two commits are
+      genteure's original work. Rebased onto zmk main 6e2ef41e. Adds
+      CONFIG_ZMK_BATTERY_REPORTING_USB, emitting one Power Device/Battery System
+      HID report per keyboard part (report ID 0x04 + devicetree child index), read
+      from /dev/hidraw by ./zmk-battery.py. Needed because stock ZMK reports
+      battery only over the BLE Battery Service, which a USB-attached dongle
+      cannot use. Note that Linux only registers every battery of a multi-battery
+      HID device from 7.1 onward, so power_supply/upower see just the first one
+      until then. Drop this patch once the PR merges - it rewrites the split BAS
+      proxy, so expect conflicts with any upstream change in that area.

@@ -11,6 +11,7 @@
 // ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 
 #include <behaviors.dtsi>
+#include <behaviors/battery_percentage_printer.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/pointing.h>
 
@@ -131,8 +132,12 @@
 
         media_layer {
             display-name = "Media";
+            // &bapp types the battery percentage of the half it is pressed on -
+            // the behavior reads event.source - so the mirrored pair gives you
+            // left (pos 4) and right (pos 5) separately. The trackball has no
+            // keys, so its level is not reachable this way.
             bindings = <
-        &trans    &trans    &trans     &trans     &trans    &trans      &trans        &trans        &trans      &trans
+        &trans    &trans    &trans     &trans     &bapp     &bapp       &trans        &trans        &trans      &trans
         &kp LGUI  &kp LALT  &kp LCTRL  &kp LSHFT  &trans    &kp C_PREV  &kp C_VOL_DN  &kp C_VOL_UP  &kp C_NEXT  &trans
 &trans  &trans    &trans    &trans     &trans     &trans    &trans      &trans        &trans        &trans      &trans  &kp C_SLEEP
                             &trans     &trans     &trans    &kp C_STOP  &kp C_PP      &kp C_MUTE
