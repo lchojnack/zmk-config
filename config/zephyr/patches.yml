@@ -20,3 +20,18 @@ patches:
       HID device from 7.1 onward, so power_supply/upower see just the first one
       until then. Drop this patch once the PR merges - it rewrites the split BAS
       proxy, so expect conflicts with any upstream change in that area.
+  - path: zmk-3382-disable-host-adv.patch
+    sha256sum: f2c96b8b45abfd0dce3b0842f7678fd595ed5a835dad2fd80d94027104e8d6e0
+    module: zmk
+    author: lemon
+    email: tuwki@qq.com
+    date: 2026-06-06
+    upstreamable: true
+    merge-pr: https://github.com/zmkfirmware/zmk/pull/3382
+    merge-status: false
+    comments: >
+      ZMK PR #3382 (open, unreviewed), adding CONFIG_ZMK_BLE_DISABLE_HOST_ADV so a
+      USB dongle stops advertising itself as a pairable BLE HID keyboard while
+      keeping BLE up for the split link. Enabled in totem_dongle.conf. Generated on
+      top of the #3458 patch above because both touch app/Kconfig - this entry must
+      stay second or it will not apply.
