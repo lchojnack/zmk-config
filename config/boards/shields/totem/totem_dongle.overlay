@@ -138,12 +138,15 @@
         input-processors = <&pointer_accel>, <&zip_temp_layer 7 600>;
         
         /* Layer 8: Scroll mode - reduced sensitivity.
-         * The divisor works on raw sensor counts, so it was doubled from 16 to 32
-         * alongside the 800 -> 1600 CPI change to keep scrolling at its old speed.
+         * The divisor works on raw sensor counts. It went 16 -> 32 with the
+         * 800 -> 1600 CPI change, then 32 -> 2 when smooth scrolling was enabled:
+         * with the resolution multiplier at 16 each emitted unit is 1/16 of a
+         * detent, so the divisor drops by the same factor to hold the speed while
+         * giving 16x finer steps.
          */
         scroll {
             layers = <8>;
-            input-processors = <&zip_xy_scaler 1 32>, <&zip_xy_to_scroll_mapper>;
+            input-processors = <&zip_xy_scaler 1 2>, <&zip_xy_to_scroll_mapper>;
         };
     };
 };
