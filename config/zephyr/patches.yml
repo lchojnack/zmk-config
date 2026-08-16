@@ -35,3 +35,20 @@ patches:
       keeping BLE up for the split link. Enabled in totem_dongle.conf. Generated on
       top of the #3458 patch above because both touch app/Kconfig - this entry must
       stay second or it will not apply.
+  - path: zmk-battery-no-host-wake.patch
+    sha256sum: fa17e2a44ec1bb9b100aede84ff1915162d6c8e1f2e858d707d0e3be5b66a32f
+    module: zmk
+    author: Lukasz Chojnacki
+    email: lukasz.chojnacki@robotec.ai
+    date: 2026-08-15
+    upstreamable: true
+    merge-pr: https://github.com/zmkfirmware/zmk/pull/3458
+    merge-status: false
+    comments: >
+      Local fix on top of PR #3458: battery HID reports must not wake a suspended
+      host. zmk_usb_hid_send_report() answers USB_DC_SUSPEND with
+      usb_wakeup_request(), so every 1% step - and every peripheral reporting 0 as
+      it deep-sleeps - resumed the laptop. The PR guards the aggregate path against
+      the disconnect case only (battery_reporting.c), and that guard does not cover
+      per-part reporting, which is what this config uses. Worth sending upstream to
+      #3458. Third in this list: it is generated on top of the two patches above.
