@@ -63,9 +63,11 @@
         y-input-code = <INPUT_REL_Y>;
         xy-swap;                      // Maintain XY swapping without processor
 
-        // Performance mode: force-high-performance
-        // Note: force-awake can cause cursor warping/jumping - not recommended
-        force-high-performance;
+        // No force-high-performance here: pmw3610_set_performance() wraps its whole
+        // body in `if (config->force_awake)`, so without force-awake the property is
+        // never read. It was dead config, implying a power mode that was not set.
+        // force-awake itself stays off - it causes cursor warping on wake.
+        // The sensor therefore runs its normal REST ladder, configured in the .conf.
     };
 };
 
