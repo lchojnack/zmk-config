@@ -52,11 +52,14 @@ MEDIA-ESC  NAV-SPACE  MOUSE-TAB  |  SYM-RET  NUM-BSPC  FUN-DEL
   held tap the OS auto-repeats (`a` then hold `a` -> `aaaaaaaa`). A *first* hold is
   always the modifier, so this is the only way to repeat a homerow key
 - **Both hands**: opposite-hand trigger only (`hold-trigger-key-positions` +
-  `hold-trigger-on-release`). A same-hand key always resolves as a tap, so rolls
-  like "as" cannot produce LGUI
+  `hold-trigger-on-release`), so a same-hand *roll* resolves as a tap and typing
+  "as" cannot produce `LGUI+s`
 
-Consequence: one-handed shortcuts such as `Ctrl+C` on the left hand do not work -
-use the *opposite* hand's modifier with a left-hand letter.
+One-handed shortcuts still work. The positional filter only applies while the
+hold-tap is undecided (`behavior_hold_tap.c:514` - it returns early when no other
+key was pressed yet), so holding `D` past the 280ms tapping term resolves it to
+`LCTRL` on the timer, and `Ctrl+C` on the left hand behaves normally from there.
+What the filter prevents is a fast roll being mistaken for a shortcut.
 
 ## Pointer
 
