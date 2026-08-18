@@ -349,7 +349,6 @@ init() {
   log_info "Initializing repository..."
   $COMMAND west init -l config
   $COMMAND west update
-  $COMMAND west patch -sm zmk-feature-split-esb apply || true
   log_info "Initialization complete."
 }
 
@@ -357,7 +356,6 @@ init() {
 update() {
   log_info "Updating repository..."
   $COMMAND west update
-  $COMMAND west patch -sm zmk-feature-split-esb apply || true
   log_info "Update complete."
 }
 
@@ -537,11 +535,11 @@ update_gitignore() {
 /zmk-battery.png
 /zmk-battery.svg
 
-# Pulled in by zmk's imported app/west.yml, so parse_west_projects below cannot
-# see them - they must be listed here or regenerating this file loses them.
+# Leftover checkouts from the dropped zmk-feature-split-esb experiment. Not in
+# config/west.yml, so parse_west_projects below cannot see them - they must be
+# listed here or regenerating this file loses them.
 /nrf/
 /nrfxlib/
-/zmk-feature-split-esb/
 # optional/modules/lib/{tflite-micro,thrift}, from zephyr's manifest
 /optional/
 
