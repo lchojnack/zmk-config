@@ -101,28 +101,34 @@ It logs to `~/.local/state/zmk-battery.csv` (only when a level changes) and rend
 root. A polybar module at `~/.config/polybar/scripts/totem-battery.sh` calls it
 once a minute and left-click opens the graph.
 
-This needs the vendored PR below: stock ZMK publishes battery only over the BLE
+This needs the forked ZMK below: stock ZMK publishes battery only over the BLE
 Battery Service, which a USB dongle cannot use. Note Linux registers just the first
 battery of a multi-battery HID device before kernel 7.1, so `upower` and
 `/sys/class/power_supply` show one arbitrary part - use the script instead.
 
-## Local ZMK patches
+## The ZMK fork
 
-Two unmerged upstream PRs are vendored in `config/zephyr/patches/`, applied by
-`west patch` from `config/zephyr/patches.yml`:
+`config/west.yml` builds ZMK from
+[lchojnack/zmk](https://github.com/lchojnack/zmk), branch `totem-dongle`. It is
+`zmkfirmware/zmk` main `6e2ef41e` (2026-08-11) with three things on top, in this
+order:
 
-| patch | what it gives us | drop when |
+| commits | what it gives us | drop when |
 |---|---|---|
 | [#3458](https://github.com/zmkfirmware/zmk/pull/3458) | `CONFIG_ZMK_BATTERY_REPORTING_USB` - per-part battery over USB HID | merged upstream |
 | [#3382](https://github.com/zmkfirmware/zmk/pull/3382) | `CONFIG_ZMK_BLE_DISABLE_HOST_ADV` - dongle stops advertising as a pairable BLE keyboard | merged upstream |
+| local | battery reports must not wake a suspended host - `zmk_usb_hid_send_report()` answers `USB_DC_SUSPEND` with `usb_wakeup_request()`, so every 1% step resumed the laptop. #3458 guards only the aggregate path, not per-part reporting | folded into #3458 |
 
-**Order matters**: both touch `app/Kconfig`, and #3382 was generated against the
-tree with #3458 already applied. Keep it second in `patches.yml`.
+**Order matters**: #3458 and #3382 both touch `app/Kconfig`, and the local fix sits
+on top of both. Rebase, do not cherry-pick out of order.
 
-Because of these, `config/west.yml` pins every project to a commit SHA. A floating
-`main` would move upstream out from under the patches and `west patch apply` would
-start failing. To upgrade: bump one SHA, run `./build_local.sh update`, check the
-patches still apply, rebuild, flash.
+Original authorship is preserved on every commit. This used to be three patch files
+applied by `west patch`; the fork replaces them, which is also what lets CI build.
+
+Every project in `config/west.yml` is pinned to a commit SHA, the fork included - a
+floating branch would move the tree out from under a known-good build. To upgrade
+ZMK: rebase `totem-dongle` onto a newer upstream main, push, bump the SHA in
+`config/west.yml`, run `./build_local.sh update`, rebuild, flash.
 
 ## Building
 
@@ -134,21 +140,16 @@ Containerised, no host toolchain required:
 ./build_local.sh build                              # everything
 ./build_local.sh build xiao_ble_zmk_totem_dongle    # one target
 ./build_local.sh build xiao_ble_zmk_totem_dongle -i # incremental, much faster
-./build_local.sh update                             # west update + reapply patches
+./build_local.sh update                             # west update
 ./build_local.sh copy                               # build/ -> artifacts/
 ./build_local.sh help
 ```
 
-`update` is idempotent: it cleans the patched module before reapplying, since
-`west update` leaves an already-patched tree dirty.
+### GitHub Actions
 
-### GitHub Actions - currently broken
-
-`.github/workflows/build.yml` calls the upstream reusable workflow, which never runs
-`west patch`. Its builds therefore lack both vendored PRs and now fail outright,
-because `totem_dongle.overlay` includes a header that only exists in #3458. Fix by
-forking the workflow and adding a patch step, or drop CI and build locally.
-`download-firmware.sh` pulls artifacts from those runs, so it is affected too.
+`.github/workflows/build.yml` calls the upstream reusable workflow, which just runs
+`west update` against `config/west.yml` - so it picks up the fork like any other
+dependency. `download-firmware.sh` pulls the artifacts from those runs.
 
 ## Flashing
 
@@ -221,8 +222,7 @@ above stops predicting what the hand feels. Flat means unit gain.
 - `config/totem.conf` - keyboard-wide Kconfig
 - `config/totem_trackball.conf` - per-part overrides that must beat `totem.conf`
 - `config/boards/shields/totem/` - shield definition, per-part overlays and confs
-- `config/west.yml` - dependencies, pinned to SHAs
-- `config/zephyr/patches.yml` - vendored upstream PRs
+- `config/west.yml` - dependencies, pinned to SHAs (ZMK itself comes from the fork)
 - `build.yaml` - build targets (used by both local and CI builds)
 
 ## Known issues

@@ -1,7 +1,7 @@
 manifest:
   remotes:
-    - name: zmkfirmware
-      url-base: https://github.com/zmkfirmware
+    - name: lchojnack
+      url-base: https://github.com/lchojnack
     - name: caksoylar
       url-base: https://github.com/caksoylar
     - name: badjeff
@@ -12,9 +12,10 @@ manifest:
       url-base: https://github.com/nuovotaka
   projects:
     - name: zmk
-      remote: zmkfirmware
-      # main @ 2026-08-11 - both local patches were generated against this tree
-      revision: 6e2ef41e022d555b10f116e395832913f71717b3
+      remote: lchojnack
+      # totem-dongle @ 2026-08-15 - fork of zmkfirmware/zmk main 6e2ef41e with
+      # PR #3458, PR #3382 and the no-host-wake fix on top. See README.
+      revision: ae6cbff805c17383196d26920f67df203f1ebdfa
       import: app/west.yml
     - name: zmk-rgbled-widget
       remote: caksoylar

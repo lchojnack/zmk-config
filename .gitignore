@@ -1,6 +1,6 @@
 # All checkout paths below are anchored with a leading slash on purpose. An
-# unanchored "zephyr/" also matches config/zephyr/, which is where west patch keeps
-# patches.yml and the patch files - they were silently ignored until this was fixed.
+# unanchored "zephyr/" also matches a nested config/zephyr/, which silently hid
+# tracked files there once before.
 # Build artifacts
 /build/
 /artifacts/

@@ -350,8 +350,6 @@ init() {
   $COMMAND west init -l config
   $COMMAND west update
   $COMMAND west patch -sm zmk-feature-split-esb apply || true
-  # Local patches from config/zephyr/patches.yml (ZMK PRs not yet merged upstream)
-  $COMMAND west patch apply || true
   log_info "Initialization complete."
 }
 
@@ -360,11 +358,6 @@ update() {
   log_info "Updating repository..."
   $COMMAND west update
   $COMMAND west patch -sm zmk-feature-split-esb apply || true
-  # Local patches from config/zephyr/patches.yml (ZMK PRs not yet merged upstream).
-  # Clean first so this is idempotent: west update leaves an already-patched module
-  # dirty, and git apply then fails on hunks that are already there.
-  $COMMAND west patch clean || true
-  $COMMAND west patch apply || true
   log_info "Update complete."
 }
 
@@ -533,8 +526,8 @@ update_gitignore() {
   # Start with basic ignores
   cat >"$temp_file" <<'EOF'
 # All checkout paths below are anchored with a leading slash on purpose. An
-# unanchored "zephyr/" also matches config/zephyr/, which is where west patch keeps
-# patches.yml and the patch files - they were silently ignored until this was fixed.
+# unanchored "zephyr/" also matches a nested config/zephyr/, which silently hid
+# tracked files there once before.
 # Build artifacts
 /build/
 /artifacts/
