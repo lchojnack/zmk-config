@@ -105,10 +105,19 @@ GRAPH_COLORS = ["#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7", "#7dcfff", "#f7768e"
 
 # Peripheral slots are assigned in split connection order, so these names are a
 # convention, not something the firmware guarantees. Override with --labels.
-# Verified on this keyboard with the &bapp behavior (Media layer, T and Y), which
-# types the level of the half the key is physically on: the right half came back
-# as slot 2, not slot 1.
-DEFAULT_LABELS = ["left", "trackball", "right"]
+#
+# reserve_peripheral_slot() -> zmk_ble_put_peripheral_addr() (zmk app/src/ble.c)
+# drops each peripheral into the first free entry of peripheral_addrs[] and
+# persists it under ble/peripheral_addresses/<i>. A settings reset wipes that, so
+# the next three parts to connect take slots in whatever order they win the race.
+# Reflashing everything on 2026-08-21 rotated all three by one: the order below is
+# what came out of that re-bond, not the devicetree order in totem_dongle.overlay.
+#
+# To re-verify after a reset, use the &bapp behavior (Media layer, T and Y), which
+# types the level of the half the key is physically on, and match it against
+# --levels. The order below was confirmed that way on 2026-08-21: &bapp typed
+# left 63% and right 9%, which is what these labels report.
+DEFAULT_LABELS = ["trackball", "right", "left"]
 
 # Battery System usage page (0x85) followed immediately by HID_REPORT_ID(n),
 # which is how the generated descriptor introduces each battery collection.
