@@ -13,6 +13,9 @@
 #include <behaviors.dtsi>
 #include <behaviors/battery_percentage_printer.dtsi>
 #include <dt-bindings/zmk/keys.h>
+// Speed of every &msc binding, in units/sec. Smooth scrolling on the dongle
+// makes one unit 1/16 of a detent, so 160 is 10 detents/sec.
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 160
 #include <dt-bindings/zmk/pointing.h>
 
 #define BASE        0
@@ -126,7 +129,7 @@
         &trans    &trans    &trans     &trans     &trans    &kp LS(INS)     &kp LC(INS)     &kp LS(DEL)   &mkp MB4         &mkp MB5
         &kp LGUI  &kp LALT  &kp LCTRL  &kp LSHFT  &trans    &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_UP  &mmv MOVE_RIGHT  &trans
 &trans  &trans    &trans    &trans     &trans     &trans    &msc SCRL_LEFT  &msc SCRL_DOWN  &msc SCRL_UP  &msc SCRL_RIGHT  &trans    &trans
-                            &trans     &trans     &trans    &mkp RCLK       &mkp LCLK       &mkp MCLK
+                            &trans     &trans     &trans    &mkp MCLK       &mkp LCLK       &mkp RCLK
             >;
         };
 
@@ -180,7 +183,7 @@
         &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans
         &trans  &trans  &trans     &trans     &mo 8      &mo 8      &trans     &trans     &trans  &trans
 &trans  &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans  &trans
-                        &mkp MCLK  &mkp LCLK  &mkp RCLK  &mkp LCLK  &mkp RCLK  &mkp MCLK
+                        &mkp MCLK  &mkp LCLK  &mkp RCLK  &mkp MCLK  &mkp LCLK  &mkp RCLK
             >;
         };
 
@@ -190,7 +193,7 @@
         &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans
         &trans  &trans  &trans     &trans     &mo 8      &mo 8      &trans     &trans     &trans  &trans
 &trans  &trans  &trans  &trans     &trans     &trans     &trans     &trans     &trans     &trans  &trans  &trans
-                        &mkp MCLK  &mkp LCLK  &mkp RCLK  &mkp LCLK  &mkp RCLK  &mkp MCLK
+                        &mkp MCLK  &mkp LCLK  &mkp RCLK  &mkp MCLK  &mkp LCLK  &mkp RCLK
             >;
         };
     };
