@@ -71,6 +71,61 @@
     };
 };
 
+// ----------------------------------------------------------------------------
+// Deep sleep wakeup source
+// ----------------------------------------------------------------------------
+
+/* The PMW3610 MOT line is what brings this part back from deep sleep.
+ *
+ * activity.c calls sys_poweroff(), and the only ways out of nRF52 System OFF are
+ * the reset button or DETECT from a pin whose PIN_CNF SENSE is set. The pmw3610
+ * driver does arm MOT as GPIO_INT_LEVEL_ACTIVE (pmw3610.c:290) during normal
+ * operation, and gpio_nrfx routes a *level* trigger to SENSE rather than to a
+ * GPIOTE channel - that branch is edge-only (gpio_nrfx.c:371-383) - but that
+ * arming happens long before power-off and does not survive it. Only the reset
+ * button woke this part.
+ *
+ * So MOT is declared here as a proper waker instead. zmk_pm_arm_wakeup_sources()
+ * resumes it as the very last step before sys_poweroff(), which re-runs
+ * gpio_pin_interrupt_configure_dt(GPIO_INT_LEVEL_ACTIVE) on the pin and so
+ * re-sets SENSE with nothing left to clobber it. Rolling the ball pulls MOT low,
+ * DETECT fires, and the nRF boots.
+ *
+ * Waking is a reset, not a resume, so the flick that wakes it is still spent on
+ * the cold boot and the re-link to the dongle. That is inherent to System OFF.
+ *
+ * The gpio-keys node is deliberately `disabled`. It exists only to give the
+ * waker a node with a `gpios` property to point at - GPIO_DT_SPEC_GET reads that
+ * whatever the status. Left enabled, CONFIG_INPUT_GPIO_KEYS would default to y
+ * (it is `default y` on DT_HAS_GPIO_KEYS_ENABLED, and CONFIG_INPUT=y here) and
+ * Zephyr's input_gpio_keys driver would bind the node and configure P1.15 for
+ * itself with an *edge* interrupt - which on nRF takes a GPIOTE channel and
+ * clears the SENSE bit this whole node exists to set, breaking both the wake and
+ * the sensor's own motion interrupt.
+ */
+/ {
+    trackball_motion_keys {
+        compatible = "gpio-keys";
+        status = "disabled";
+
+        trackball_motion: motion {
+            // Same pin and flags as the sensor's irq-gpios: MOT on P1.15,
+            // active low with a pull-up.
+            gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        };
+    };
+
+    trackball_motion_waker: trackball_motion_waker {
+        compatible = "zmk,gpio-key-wakeup-trigger";
+        trigger = <&trackball_motion>;
+    };
+
+    wakeup_sources {
+        compatible = "zmk,soft-off-wakeup-sources";
+        wakeup-sources = <&trackball_motion_waker>;
+    };
+};
+
 / {
     split_inputs {
         #address-cells = <1>;
